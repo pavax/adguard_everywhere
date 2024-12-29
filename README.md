@@ -74,11 +74,13 @@ DuckDNS is used to manage a dynamic DNS service for your VPN endpoint. It update
    - Access the web UI at http://`<host-ip>`:3000 to complete the setup 
    - After the setup access the web UI at http://`<host-ip>`:80 
  - WireGuard: Access the WireGuard UI at http://`<host-ip>`:51821.
+   - Simply add a new VPN Clients on the Web-UI and import the generated config either using the QR-Code or downloadable config file for your vpn-client.
  - DuckDNS: This service runs in the background to update your DuckDNS subdomain with your current public IP.
 
 
-5. Add Port Forwarding on your Router
+5. Router Config
   - Add a Port Forwarding on your router for the UDP port that you configured for `WIREGURAD_PORT` to the Docker Host IP using the same port.
+  - Configure your router (or your DHCP server) to use Adguard as a DNS server by specifying the Docker Host IP (for example 192.168.1.195). 
 
 
 ## Environment Variables
