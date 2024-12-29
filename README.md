@@ -24,8 +24,8 @@ AdGuard is a network-wide ad blocker and DNS server. It will handle DNS queries 
 `wg-easy` is a simple web UI for managing WireGuard configurations.
 
 - **Ports Exposed**:
-  - Custom port for WireGuard (configured via `WIREGURAD_PORT`).
-  - 51821: Web UI (TCP).
+  - Custom port for WireGuard Traffic (configured via `WIREGURAD_PORT`).
+  - 51821: Admin Web UI to register and manage vpn client.
   
 - **Configuration**:
   - `WG_HOST`: VPN endpoint address (DuckDNS domain).
@@ -78,7 +78,7 @@ DuckDNS is used to manage a dynamic DNS service for your VPN endpoint. It update
 
 
 5. Add Port Forwarding on your Router
-  - Add a Port Forwarding on your router for the UDP Port 51829 to the Docker Host IP.
+  - Add a Port Forwarding on your router for the UDP port that you configured for `WIREGURAD_PORT` to the Docker Host IP using the same port.
 
 
 ## Environment Variables
