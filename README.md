@@ -29,10 +29,10 @@ AdGuard is a network-wide ad blocker and DNS server. It will handle DNS queries 
   
 - **Configuration**:
   - `WG_HOST`: VPN endpoint address (DuckDNS domain).
-  - `PASSWORD_HASH`: WireGuard UI password (hashed).
+  - `PASSWORD_HASH`: WireGuard UI password (hashed and escaped $ with $$). see here how to generate it: https://github.com/wg-easy/wg-easy/blob/master/How_to_generate_an_bcrypt_hash.md
   - `WG_PORT`: Port number for WireGuard (`51829` by default).
-  - `WG_DEFAULT_DNS`: Set to the IP of the AdGuard container.
-  - `WG_POST_UP`: Configures iptables rules for NAT, routing, and VPN traffic.
+  - `WG_DEFAULT_DNS`: references the adguard container so that dns are resolved using adguard
+  - `WG_POST_UP`: Configures iptables rules for NAT, routing, and VPN traffic. Makes sure the traffic to adguard doesn't get masqueraded (NAT-ed) contrary to the rest of the rules
   
 ### 3. DuckDNS
 DuckDNS is used to manage a dynamic DNS service for your VPN endpoint. It updates your public IP address with the DuckDNS subdomain.
@@ -63,16 +63,22 @@ DuckDNS is used to manage a dynamic DNS service for your VPN endpoint. It update
 
  - Set your DuckDNS token, subdomain, WireGuard port, and other environment variables in the .env file.
 
+
 3. Build and start the services:
    ```bash
    docker-compose up -d --build
 
+
 4. Accessing the services:
  - AdGuard Home: 
-   - Access the web UI at http://<host-ip>:3000 to complete the setup 
-   - After the setup access the web UI at http://<host-ip>:80 
- - WireGuard: Access the WireGuard UI at http://<host-ip>:51821.
+   - Access the web UI at http://`<host-ip>`:3000 to complete the setup 
+   - After the setup access the web UI at http://`<host-ip>`:80 
+ - WireGuard: Access the WireGuard UI at http://`<host-ip>`:51821.
  - DuckDNS: This service runs in the background to update your DuckDNS subdomain with your current public IP.
+
+
+5. Add Port Forwarding on your Router
+  - Add a Port Forwarding on your router for the UDP Port 51829 to the Docker Host IP.
 
 
 ## Environment Variables
@@ -84,9 +90,4 @@ DuckDNS is used to manage a dynamic DNS service for your VPN endpoint. It update
  - `DUCKDNS_SUBDOMAIN`: The subdomain to update with your public IP.
  - `TIMEZONE`: The timezone for the containers (e.g., Europe/Zurich).
 
-
-## Notes
- - Add a Port Forwarding (Nat) on your Router for the UDP Port 51829 to the Docker Host IP
- - You can modify the docker-compose.yml file to adjust the port bindings or add more customizations.
- - The dynamic DNS updates will only work if the duckdns service is running and configured correctly.
 	
