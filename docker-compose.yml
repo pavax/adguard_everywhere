@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     hostname: adguard
     environment:
-      - WG_ROUTE=10.8.0.0/24 via 10.3.0.3 # Adds a static route so that adguard knowns how to route the dns-responses back to the vpn-clients
+      - WG_ROUTE=10.8.0.0/24 via 10.3.0.3 # Adds a static route so that adguard knowns how to route the dns-responses back to the vpn-clients via the wg-easy container ip
       - TZ=${TIMEZONE}
     volumes:
       - "./wg-easy/opt-adguard-work:/opt/adguardhome/work"
@@ -43,9 +43,9 @@ services:
       - WG_PORT=${WIREGURAD_PORT}
       - WG_DEFAULT_DNS=10.3.0.2     # adguard-container ip
       - UI_TRAFFIC_STATS=true
+      - WG_DEFAULT_ADDRESS=10.8.0.x # vpn-clients (peer) subnet 
       - WG_POST_UP=iptables -t nat -I POSTROUTING -d 10.3.0.2 -s 10.8.0.0/24 -j ACCEPT; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables -A INPUT -p udp -m udp --dport ${WIREGURAD_PORT} -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT;
       # OPTIONAL:
-      # - WG_DEFAULT_ADDRESS=10.6.0.0
       # - WG_MTU=1420
       # - WG_ALLOWED_IPS=192.168.1.0/24, 10.3.0.0/24
     volumes:
