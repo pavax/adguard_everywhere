@@ -40,7 +40,6 @@ services:
   adguard:
     container_name: adguard
     build: adguard
-    image: adguard/adguardhome
     restart: unless-stopped
     hostname: adguard
     environment:
