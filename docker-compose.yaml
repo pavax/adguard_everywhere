@@ -17,7 +17,7 @@ services:
       - WG_HOST=vpn.pavax.ch
       - PASSWORD_HASH=$$2a$$12$$u73xB9HBKMLhyrldyHSsyuI5tTtVn/vRkwdLoe33fQ.1nj51vD.Ki
       - WG_PORT=51829
-      - WG_DEFAULT_DNS=10.2.0.100
+      - WG_DEFAULT_DNS=10.3.0.100
       - UI_TRAFFIC_STATS=true
       - WG_POST_UP=iptables -t nat -I POSTROUTING -d 10.3.0.100 -s 10.8.0.0/24 -j ACCEPT; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables -A INPUT -p udp -m udp --dport 51829 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT;
       # OPTIONAL:
