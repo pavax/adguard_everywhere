@@ -3,11 +3,9 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 10.2.0.0/24
-
+        - subnet: 10.3.0.0/24
 
 services:
-
   wg-easy:
     depends_on: [adguard]
     image: ghcr.io/wg-easy/wg-easy
@@ -21,11 +19,11 @@ services:
       - WG_PORT=51829
       - WG_DEFAULT_DNS=10.2.0.100
       - UI_TRAFFIC_STATS=true
-      - WG_POST_UP=iptables -t nat -I POSTROUTING -d 10.2.0.100 -s 10.8.0.0/24 -j ACCEPT; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables -A INPUT -p udp -m udp --dport 51829 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT;
+      - WG_POST_UP=iptables -t nat -I POSTROUTING -d 10.3.0.100 -s 10.8.0.0/24 -j ACCEPT; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables -A INPUT -p udp -m udp --dport 51829 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT;
       # OPTIONAL:
       # - WG_DEFAULT_ADDRESS=10.6.0.0
       # - WG_MTU=1420
-      # - WG_ALLOWED_IPS=192.168.1.0/24, 10.2.0.0/24
+      # - WG_ALLOWED_IPS=192.168.1.0/24, 10.3.0.0/24
     volumes:
       - "./wg-easy:/etc/wireguard"
     ports:
@@ -37,8 +35,7 @@ services:
     restart: always
     networks:
       private_network:
-        ipv4_address: 10.2.0.3
-
+        ipv4_address: 10.3.0.3
 
   adguard:
     container_name: adguard
@@ -64,4 +61,4 @@ services:
       - NET_ADMIN
     networks:
       private_network:
-        ipv4_address: 10.2.0.100
+        ipv4_address: 10.3.0.100
