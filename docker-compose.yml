@@ -15,8 +15,8 @@ services:
       - WG_ROUTE=10.8.0.0/24 via 10.3.0.3 # Adds a static route so that adguard knowns how to route the dns-responses back to the vpn-clients via the wg-easy container ip
       - TZ=${TIMEZONE}
     volumes:
-      - "./wg-easy/opt-adguard-work:/opt/adguardhome/work"
-      - "./wg-easy/opt-adguard-conf:/opt/adguardhome/conf"
+      - "./config/adguard-work:/opt/adguardhome/work"
+      - "./config/adguard-conf:/opt/adguardhome/conf"
     ports:
       - "53:53/tcp"     # DNS over TCP
       - "53:53/udp"     # DNS over UDP
@@ -49,7 +49,7 @@ services:
       # - WG_MTU=1420
       # - WG_ALLOWED_IPS=192.168.1.0/24, 10.3.0.0/24
     volumes:
-      - "./wg-easy:/etc/wireguard"
+      - "./config/wg-easy:/etc/wireguard"
     ports:
       - "${WIREGURAD_PORT}:${WIREGURAD_PORT}/udp"
       - "51821:51821/tcp"
