@@ -43,7 +43,7 @@ services:
     restart: unless-stopped
     hostname: adguard
     environment:
-      - WG_ROUTE="10.8.0.0/24 via 10.2.0.3"
+      - WG_ROUTE=10.8.0.0/24 via 10.2.0.3
       - TZ="Europe/Zurich"
     volumes:
       - "./wg-easy/opt-adguard-work:/opt/adguardhome/work"
