@@ -6,6 +6,30 @@ networks:
         - subnet: 10.3.0.0/24
 
 services:
+  adguard:
+    container_name: adguard
+    build: adguard
+    restart: unless-stopped
+    hostname: adguard
+    environment:
+      - WG_ROUTE=10.8.0.0/24 via 10.3.0.3 # Adds a static route so that adguard knowns how to route the dns-responses back to the vpn-clients
+      - TZ=${TIMEZONE}
+    volumes:
+      - "./wg-easy/opt-adguard-work:/opt/adguardhome/work"
+      - "./wg-easy/opt-adguard-conf:/opt/adguardhome/conf"
+    ports:
+      - "53:53/tcp"     # DNS over TCP
+      - "53:53/udp"     # DNS over UDP
+      - "80:80/tcp"     # Web UI/HTTP
+      - "3000:3000"     # Web UI/HTTP during setup
+      - "443:443/tcp"   # DNS over HTTPS (DoH)
+      - "853:853/tcp"   # DNS over TLS (DoT)
+    cap_add:
+      - NET_ADMIN
+    networks:
+      private_network:
+        ipv4_address: 10.3.0.5
+
   wg-easy:
     depends_on: [adguard]
     image: ghcr.io/wg-easy/wg-easy
@@ -14,12 +38,12 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - WG_HOST=vpn.pavax.ch
-      - PASSWORD_HASH=$$2a$$12$$u73xB9HBKMLhyrldyHSsyuI5tTtVn/vRkwdLoe33fQ.1nj51vD.Ki
-      - WG_PORT=51829
-      - WG_DEFAULT_DNS=10.3.0.100
+      - WG_HOST=${VPN_ENDPOINT_ADDRESS}
+      - PASSWORD_HASH=${WG_EASY_PASSWORD}
+      - WG_PORT=${WIREGURAD_PORT}
+      - WG_DEFAULT_DNS=10.3.0.5 # adguard-container ip
       - UI_TRAFFIC_STATS=true
-      - WG_POST_UP=iptables -t nat -I POSTROUTING -d 10.3.0.100 -s 10.8.0.0/24 -j ACCEPT; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables -A INPUT -p udp -m udp --dport 51829 -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT;
+      - WG_POST_UP=iptables -t nat -I POSTROUTING -d 10.3.0.5 -s 10.8.0.0/24 -j ACCEPT; iptables -t nat -A POSTROUTING -s 10.8.0.0/24 -o eth0 -j MASQUERADE; iptables -A INPUT -p udp -m udp --dport ${WIREGURAD_PORT} -j ACCEPT; iptables -A FORWARD -i wg0 -j ACCEPT; iptables -A FORWARD -o wg0 -j ACCEPT;
       # OPTIONAL:
       # - WG_DEFAULT_ADDRESS=10.6.0.0
       # - WG_MTU=1420
@@ -27,7 +51,7 @@ services:
     volumes:
       - "./wg-easy:/etc/wireguard"
     ports:
-      - "51829:51829/udp"
+      - "${WIREGURAD_PORT}:${WIREGURAD_PORT}/udp"
       - "51821:51821/tcp"
     sysctls:
       - net.ipv4.ip_forward=1
@@ -37,27 +61,13 @@ services:
       private_network:
         ipv4_address: 10.3.0.3
 
-  adguard:
-    container_name: adguard
-    build: adguard
-    restart: unless-stopped
-    hostname: adguard
-    environment:
-      - WG_ROUTE=10.8.0.0/24 via 10.3.0.3
-      - TZ="Europe/Zurich"
-    volumes:
-      - "./wg-easy/opt-adguard-work:/opt/adguardhome/work"
-      - "./wg-easy/opt-adguard-conf:/opt/adguardhome/conf"
-    ports:
-      - "53:53/tcp"     # DNS over TCP
-      - "53:53/udp"     # DNS over UDP
-
-      - "80:80/tcp"     # Web UI/HTTP
-      - "3000:3000"     # Web UI/HTTP during setup
-      - "443:443/tcp"   # DNS over HTTPS (DoH)
-      - "853:853/tcp"   # DNS over TLS (DoT)
-    cap_add:
-      - NET_ADMIN
-    networks:
-      private_network:
-        ipv4_address: 10.3.0.100
+  duckdns:
+      image: linuxserver/duckdns
+      container_name: duckdns
+      environment:
+        - TOKEN=${DUCKDNS_TOKEN}
+        - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      restart: unless-stopped
+      networks:
+        private_network:
+          ipv4_address: 10.3.0.4
