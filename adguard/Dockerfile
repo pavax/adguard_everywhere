@@ -1,17 +1,16 @@
 FROM adguard/adguardhome
 
 # Add a startup script that dynamically adds the route
-RUN echo "#!/bin/bash\n\
-if [ -n \"\$WG_ROUTE\" ]; then\n\
-  echo \"Adding route: \$WG_ROUTE\"\n\
-  ip route add \$WG_ROUTE\n\
-else\n\
-  echo \"No WG_ROUTE specified, skipping route addition.\"\n\
-fi\n\
-exec /opt/adguardhome/AdGuardHome \"\$@\"" > /usr/local/bin/start-adguard
-
-# Make the script executable
-RUN chmod +x /usr/local/bin/start-adguard
+RUN echo -e '#!/bin/sh\n' \
+    'if [ -n "$WG_ROUTE" ]; then\n' \
+    '  echo "Adding route: $WG_ROUTE"\n' \
+    '  ip route add $WG_ROUTE\n' \
+    'else\n' \
+    '  echo "No WG_ROUTE specified, skipping route addition."\n' \
+    'fi\n' \
+    'exec /opt/adguardhome/AdGuardHome "$@"' > /usr/local/bin/start-adguard \
+    && dos2unix /usr/local/bin/start-adguard \
+    && chmod +x /usr/local/bin/start-adguard
 
 # Set the new entrypoint
 ENTRYPOINT ["/usr/local/bin/start-adguard"]
