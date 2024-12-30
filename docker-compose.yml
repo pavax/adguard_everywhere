@@ -20,7 +20,7 @@ services:
     ports:
       - "53:53/tcp"     # DNS over TCP
       - "53:53/udp"     # DNS over UDP
-      - "80:80/tcp"     # Web UI/HTTP
+      - "8080:80/tcp"   # Web UI/HTTP
       - "3000:3000"     # Web UI/HTTP during setup
       - "443:443/tcp"   # DNS over HTTPS (DoH)
       - "853:853/tcp"   # DNS over TLS (DoT)
